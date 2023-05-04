@@ -6,13 +6,42 @@ const res =await fetch(`https://api.github.com/users/${name}?client_id=${CLIENT_
     return profile;
 }
 
+async function getrepos(profile){
+    const res=await fetch(`${profile.repos_url}?client_id=${CLIENT_ID}& client_secret=${CLIENT_SECRET} &per_page=10`);
+
+    const repo =await res.json();
+    return repo;
+}
+
 document.querySelector('#search').addEventListener('submit',async (e)=>{
     e.preventDefault();
     const username =document.querySelector('#findByUsername').value;
     const profile = await getuser(username);
+    const repos=await getrepos(profile);
+    console.log(repos);
+
     showprofile(profile);
+    showRepos(repos);
     console.log(profile);
 })
+function showRepos(repos){
+
+    let newhtml='';
+    for(let repo of repos){
+        newhtml += `
+        <div class="repo">
+        <div class="repo_name">
+          <a href="${repo.html_url}">${repo.name}</a>
+        </div>
+        <p>
+          <span class="circle"></span> ${repo.language}
+          <ion-icon name="star-outline"></ion-icon> ${repo.watchers_count}
+          <ion-icon name="git-branch-outline"></ion-icon> ${repo.forks_count}
+        </p>
+      </div>`
+    }
+    document.querySelector('.repos').innerHTML = newhtml;
+}
 
 function showprofile(profile){
     document.querySelector('.profile').innerHTML=`
